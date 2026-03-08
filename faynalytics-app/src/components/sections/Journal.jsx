@@ -8,8 +8,8 @@ const Journal = ({
     setJournalEntries,
     journalForm,
     setJournalForm,
-    editingIndex,
-    setEditingIndex,
+    editingId,
+    setEditingId,
     addJournalEntry,
     resetJournalForm,
     editEntry,
@@ -42,8 +42,8 @@ const Journal = ({
         setIsDrawerOpen(true);
     };
 
-    const handleEdit = (index) => {
-        editEntry(index);
+    const handleEdit = (id) => {
+        editEntry(id);
         setIsDrawerOpen(true);
     };
 
@@ -203,13 +203,13 @@ const Journal = ({
 
                                     <div className="flex gap-2">
                                         <button
-                                            onClick={() => handleEdit(journalEntries.indexOf(entry))}
+                                            onClick={() => handleEdit(entry.id)}
                                             className="p-2 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 hover:text-purple-600 dark:hover:text-purple-400 rounded-xl transition-all"
                                         >
                                             <Edit size={18} />
                                         </button>
                                         <button
-                                            onClick={() => deleteEntry(journalEntries.indexOf(entry))}
+                                            onClick={() => deleteEntry(entry.id)}
                                             className="p-2 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 hover:text-red-500 rounded-xl transition-all"
                                         >
                                             <Trash2 size={18} />
@@ -243,7 +243,7 @@ const Journal = ({
                             <div className="p-8 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-800/30">
                                 <div>
                                     <h3 className="text-2xl font-black text-zinc-900 dark:text-white">
-                                        {editingIndex !== -1 ? 'Edit Trade' : 'New Journal Entry'}
+                                        {editingId ? 'Edit Trade' : 'New Journal Entry'}
                                     </h3>
                                     <p className="text-sm text-zinc-500 font-medium">Capture the details of your trade</p>
                                 </div>
@@ -431,7 +431,7 @@ const Journal = ({
                                         onClick={() => handleSave(false)}
                                         className="flex items-center justify-center gap-2 px-6 py-4 bg-purple-600 text-white rounded-2xl hover:bg-purple-700 transition-all font-black uppercase tracking-widest shadow-lg shadow-purple-500/20 active:scale-95"
                                     >
-                                        {editingIndex !== -1 ? 'Update Trade' : 'Post Journal'}
+                                        {editingId ? 'Update Trade' : 'Post Journal'}
                                         <ChevronRight size={18} />
                                     </button>
                                 </div>

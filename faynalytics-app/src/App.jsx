@@ -40,17 +40,22 @@ const FaynalyticsApp = () => {
   // Data State
   const [journalEntries, setJournalEntries] = useState(() => {
     const saved = localStorage.getItem('tradingJournalEntries');
-    return saved ? JSON.parse(saved) : [];
+    const parsed = saved ? JSON.parse(saved) : [];
+    // Robust ID migration on load
+    return parsed.map((e, idx) => ({
+      ...e,
+      id: e.id || e.timestamp || `${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 9)}`
+    }));
   });
 
   const [performanceGoal, setPerformanceGoal] = useState(() => {
     const saved = localStorage.getItem('tradingPerformanceGoal');
-    return saved ? JSON.parse(saved) : { initialCapital: 10000, targetPnLEuro: 1000 };
+    return saved ? JSON.parse(saved) : { initialCapital: 5000, targetPnLEuro: 5400 };
   });
 
   // Calculator State
   const [calculatorData, setCalculatorData] = useState({
-    capital: 1000,
+    capital: 5000,
     riskPercentage: 1,
     currencyPair: 'EURUSD',
     stopLossMethod: 'pips_direct',
@@ -78,7 +83,7 @@ const FaynalyticsApp = () => {
     resultPercentage: 0,
     comment: ''
   });
-  const [editingIndex, setEditingIndex] = useState(-1);
+  const [editingId, setEditingId] = useState(null);
   const [filters, setFilters] = useState({
     asset: '',
     tradeType: '',
@@ -114,9 +119,27 @@ const FaynalyticsApp = () => {
     }
   }, []);
 
+  // Migration for missing IDs (Backup for runtime additions)
+  useEffect(() => {
+    if (journalEntries.some(e => !e.id)) {
+      setJournalEntries(prev => prev.map((e, idx) => ({
+        ...e,
+        id: e.id || e.timestamp || `${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 9)}`
+      })));
+    }
+  }, [journalEntries]);
+
   // --- ACTIONS ---
   const showToast = (message, type = 'info') => setToast({ message, type });
   const closeToast = () => setToast(null);
+
+  // Migration for performance goal (requested by user)
+  useEffect(() => {
+    if (performanceGoal.initialCapital === 10000 && performanceGoal.targetPnLEuro === 1000) {
+      setPerformanceGoal({ initialCapital: 5000, targetPnLEuro: 5400 });
+      showToast('Performance goal updated to defaults', 'success');
+    }
+  }, [performanceGoal.initialCapital, performanceGoal.targetPnLEuro]);
 
   const fetchUserProfile = async () => {
     try {
@@ -184,18 +207,21 @@ const FaynalyticsApp = () => {
       resultPercentage: parseFloat(resultPercentage) || 0,
       comment,
       is_draft: isDraft,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      id: Date.now()
     };
 
-    if (editingIndex !== -1) {
-      const updatedEntries = [...journalEntries];
-      updatedEntries[editingIndex] = { ...updatedEntries[editingIndex], ...entry };
-      setJournalEntries(updatedEntries);
-      setEditingIndex(-1);
+    if (editingId) {
+      const next = journalEntries.map(e => e.id === editingId ? { ...e, ...entry, id: editingId } : e);
+      setJournalEntries(next);
+      setEditingId(null);
       showToast('Entry updated successfully!', 'success');
+      if (isDriveConnected) handleSaveToCloud(next);
     } else {
-      setJournalEntries([entry, ...journalEntries]);
+      const next = [entry, ...journalEntries];
+      setJournalEntries(next);
       showToast(isDraft ? 'Draft saved!' : 'Trade added to journal!', 'success');
+      if (isDriveConnected) handleSaveToCloud(next);
     }
     resetJournalForm();
   };
@@ -207,11 +233,13 @@ const FaynalyticsApp = () => {
       entryPrice: '', stopLoss: '', takeProfit: '', rrr: '',
       positionSize: '', resultEuro: 0, resultPercentage: 0, comment: ''
     });
-    setEditingIndex(-1);
+    setEditingId(null);
   };
 
-  const editEntry = (index) => {
-    const entry = journalEntries[index];
+  const editEntry = (id) => {
+    const entry = journalEntries.find(e => e.id === id);
+    if (!entry) return;
+
     setJournalForm({
       date: entry.date,
       asset: Object.keys(currencyPairs).includes(entry.asset) ? entry.asset : 'other',
@@ -227,24 +255,35 @@ const FaynalyticsApp = () => {
       resultPercentage: entry.resultPercentage,
       comment: entry.comment
     });
-    setEditingIndex(index);
+    setEditingId(id);
   };
 
-  const deleteEntry = (index) => {
+  const deleteEntry = async (id) => {
     if (window.confirm('Delete this entry?')) {
-      setJournalEntries(journalEntries.filter((_, i) => i !== index));
+      const next = journalEntries.filter(e => e.id !== id);
+      setJournalEntries(next);
       showToast('Trade deleted', 'success');
+      if (isDriveConnected) handleSaveToCloud(next);
+    }
+  };
+
+  const clearJournal = async () => {
+    if (window.confirm('Are you sure you want to clear your entire workspace? This cannot be undone.')) {
+      setJournalEntries([]);
+      showToast('Workspace cleared', 'success');
+      if (isDriveConnected) handleSaveToCloud([]);
     }
   };
 
   // --- CLOUD SYNC ---
-  const handleSaveToCloud = async () => {
+  const handleSaveToCloud = async (dataOverride = null) => {
     try {
+      const dataToSave = dataOverride || journalEntries;
       showToast('Saving to Google Drive...', 'info');
       const response = await fetch(`${BACKEND_URL}/api/save-journal`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ journalData: journalEntries }),
+        body: JSON.stringify({ journalData: dataToSave }),
       });
       if (response.ok) showToast('Journal saved!', 'success');
       else showToast('Sync failed', 'error');
@@ -295,9 +334,18 @@ const FaynalyticsApp = () => {
   }, [journalEntries]);
 
   const goalProgress = useMemo(() => {
-    const progress = (analytics.totalPnL / performanceGoal.targetPnLEuro) * 100;
+    // Determine the profit target:
+    // If Goal > Initial, we treat Goal as the target balance.
+    // If Goal <= Initial, we treat Goal as the target profit amount.
+    const targetProfit = performanceGoal.targetPnLEuro > performanceGoal.initialCapital
+      ? (performanceGoal.targetPnLEuro - performanceGoal.initialCapital)
+      : performanceGoal.targetPnLEuro;
+
+    if (targetProfit <= 0) return 0;
+
+    const progress = (analytics.totalPnL / targetProfit) * 100;
     return Math.min(100, Math.max(0, progress));
-  }, [analytics.totalPnL, performanceGoal.targetPnLEuro]);
+  }, [analytics.totalPnL, performanceGoal.initialCapital, performanceGoal.targetPnLEuro]);
 
   // --- NAVIGATION CONFIG ---
   const navigationItems = [
@@ -312,12 +360,12 @@ const FaynalyticsApp = () => {
   // --- RENDER HELPERS ---
   const renderContent = () => {
     const props = {
-      dashboard: { isDriveConnected, handleSaveToCloud, handleLoadFromCloud, handleSignOut, BACKEND_URL, analytics, performanceGoal, setPerformanceGoal, goalProgress, showToast },
+      dashboard: { isDriveConnected, handleSaveToCloud, handleLoadFromCloud, handleSignOut, BACKEND_URL, analytics, performanceGoal, setPerformanceGoal, goalProgress, showToast, setCurrentSection, journalEntries },
       calculator: { calculatorData, setCalculatorData, calculatePosition, calculatorResult },
-      journal: { journalEntries, setJournalEntries, journalForm, setJournalForm, editingIndex, setEditingIndex, addJournalEntry, resetJournalForm, editEntry, deleteEntry, filters, setFilters, showToast },
+      journal: { journalEntries, setJournalEntries, journalForm, setJournalForm, editingId, setEditingId, addJournalEntry, resetJournalForm, editEntry, deleteEntry, filters, setFilters, showToast },
       analytics: { analytics, theme, journalEntries },
       sessions: {},
-      settings: { theme, setTheme, journalEntries, setJournalEntries, showToast }
+      settings: { theme, setTheme, journalEntries, setJournalEntries, clearJournal, showToast }
     };
 
     switch (currentSection) {

@@ -6,6 +6,7 @@ const Settings = ({
     setTheme,
     journalEntries,
     setJournalEntries,
+    clearJournal,
     showToast
 }) => {
     return (
@@ -145,12 +146,7 @@ const Settings = ({
                             </button>
 
                             <button
-                                onClick={() => {
-                                    if (window.confirm('Delete all data? This cannot be undone.')) {
-                                        setJournalEntries([]);
-                                        showToast('Data cleared.', 'success');
-                                    }
-                                }}
+                                onClick={clearJournal}
                                 className="w-full flex items-center gap-3 px-6 py-4 text-zinc-400 hover:text-red-500 hover:bg-red-500/5 rounded-2xl transition-all duration-300 font-bold group"
                             >
                                 <div className="w-10 h-10 bg-zinc-100 dark:bg-zinc-800 group-hover:bg-red-500/10 rounded-xl flex items-center justify-center transition-colors">
