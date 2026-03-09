@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { BookOpen, Plus, Save, X, Filter, RotateCcw, Edit, Trash2, ChevronRight, Calculator, AlertCircle } from 'lucide-react';
 import { currencyPairs } from '../../constants/assets';
 import { formatCurrency } from '../../utils/helpers';
@@ -19,6 +19,22 @@ const Journal = ({
     showToast
 }) => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    // Lock scroll when drawer is open
+    useEffect(() => {
+        if (isDrawerOpen) {
+            document.body.style.overflow = 'hidden';
+            // Prevent horizontal jitter on some mobile browsers
+            document.documentElement.style.overflowX = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+            document.documentElement.style.overflowX = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+            document.documentElement.style.overflowX = '';
+        };
+    }, [isDrawerOpen]);
 
     // Filtered and sorted entries
     const filteredEntries = useMemo(() => {
@@ -235,7 +251,7 @@ const Journal = ({
                         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] animate-in fade-in duration-300"
                         onClick={handleCloseDrawer}
                     ></div>
-                    <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-white dark:bg-zinc-900 z-[70] shadow-2xl p-0 animate-in slide-in-from-right duration-500 ease-out border-l border-zinc-100 dark:border-zinc-800">
+                    <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-white dark:bg-zinc-900 z-[70] shadow-2xl p-0 animate-in slide-in-from-right duration-500 ease-out border-l border-zinc-100 dark:border-zinc-800 overflow-x-hidden">
                         <div className="h-full flex flex-col">
                             {/* Drawer Header */}
                             <div className="p-5 sm:p-8 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-800/30">

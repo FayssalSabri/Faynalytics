@@ -124,7 +124,7 @@ app.get('/api/load-journal', isAuthenticated, async (req, res) => {
             fileId: journalFile.id,
             alt: 'media',
         });
-        
+
         res.status(200).json(fileContent.data);
 
     } catch (error) {
@@ -153,7 +153,7 @@ app.get('/', (req, res) => {
 
 // New middleware to handle 404 errors for any unmatched routes
 app.use((req, res, next) => {
-  res.status(404).send("Sorry, that page can't be found!");
+    res.status(404).send("Sorry, that page can't be found!");
 });
 
 app.listen(PORT, () => {

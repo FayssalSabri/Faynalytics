@@ -376,7 +376,7 @@ const FaynalyticsApp = () => {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-900'}`}>
+    <div className={`min-h-screen overflow-x-hidden transition-colors duration-300 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-900'}`}>
       <Sidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
