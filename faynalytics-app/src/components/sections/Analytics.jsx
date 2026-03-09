@@ -8,8 +8,8 @@ const Analytics = ({ analytics, theme, journalEntries }) => {
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
-                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-6 shadow-sm">
+                    <h3 className="text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
                         <TrendingUp className="text-purple-600" size={24} />
                         Equity Curve
                     </h3>
@@ -54,8 +54,8 @@ const Analytics = ({ analytics, theme, journalEntries }) => {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
-                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-6 shadow-sm">
+                    <h3 className="text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
                         <BarChart3 className="text-purple-600" size={24} />
                         Asset Performance
                     </h3>
@@ -101,8 +101,8 @@ const Analytics = ({ analytics, theme, journalEntries }) => {
             </div>
 
             {/* Detailed Statistics */}
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8 shadow-sm">
-                <h3 className="text-xl font-bold mb-8 flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-8 shadow-sm">
+                <h3 className="text-xl font-bold mb-6 sm:mb-8 flex items-center gap-2 text-zinc-900 dark:text-zinc-50">
                     <BarChart3 className="text-purple-600" size={24} />
                     Detailed Statistics
                 </h3>
@@ -112,14 +112,14 @@ const Analytics = ({ analytics, theme, journalEntries }) => {
                         <h4 className="font-bold mb-4 text-zinc-500 flex items-center gap-2 uppercase tracking-widest text-[10px]">
                             Performance by Asset
                         </h4>
-                        <div className="overflow-hidden rounded-xl border border-zinc-100 dark:border-zinc-800">
-                            <table className="w-full text-sm">
+                        <div className="overflow-x-auto rounded-xl border border-zinc-100 dark:border-zinc-800">
+                            <table className="w-full text-sm min-w-[400px]">
                                 <thead>
                                     <tr className="bg-zinc-50 dark:bg-zinc-800/50">
-                                        <th className="text-left py-4 px-6 font-bold text-zinc-500 dark:text-zinc-400">Asset</th>
-                                        <th className="text-center py-4 px-6 font-bold text-zinc-500 dark:text-zinc-400">Trades</th>
-                                        <th className="text-center py-4 px-6 font-bold text-zinc-500 dark:text-zinc-400">Win Rate</th>
-                                        <th className="text-right py-4 px-6 font-bold text-zinc-500 dark:text-zinc-400">P&L</th>
+                                        <th className="text-left py-3 px-4 sm:py-4 sm:px-6 font-bold text-zinc-500 dark:text-zinc-400">Asset</th>
+                                        <th className="text-center py-3 px-4 sm:py-4 sm:px-6 font-bold text-zinc-500 dark:text-zinc-400">Trades</th>
+                                        <th className="text-center py-3 px-4 sm:py-4 sm:px-6 font-bold text-zinc-500 dark:text-zinc-400">Win Rate</th>
+                                        <th className="text-right py-3 px-4 sm:py-4 sm:px-6 font-bold text-zinc-500 dark:text-zinc-400">P&L</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -133,15 +133,15 @@ const Analytics = ({ analytics, theme, journalEntries }) => {
                                         return acc;
                                     }, {})).map(([asset, stats]) => (
                                         <tr key={asset} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                                            <td className="py-4 px-6 font-bold text-zinc-900 dark:text-zinc-100 uppercase">{asset}</td>
-                                            <td className="py-4 px-6 text-center font-medium">{stats.totalTrades}</td>
-                                            <td className="py-4 px-6 text-center">
+                                            <td className="py-3 px-4 sm:py-4 sm:px-6 font-bold text-zinc-900 dark:text-zinc-100 uppercase">{asset}</td>
+                                            <td className="py-3 px-4 sm:py-4 sm:px-6 text-center font-medium">{stats.totalTrades}</td>
+                                            <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">
                                                 <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${(stats.wins / stats.totalTrades) >= 0.5 ? 'bg-green-100 text-green-700 dark:bg-green-900/30' : 'bg-red-100 text-red-700 dark:bg-red-900/30'
                                                     }`}>
                                                     {formatPercentage((stats.wins / stats.totalTrades) * 100)}
                                                 </span>
                                             </td>
-                                            <td className={`py-4 px-6 text-right font-black ${stats.pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                            <td className={`py-3 px-4 sm:py-4 sm:px-6 text-right font-black ${stats.pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                                 {formatCurrency(stats.pnl)}
                                             </td>
                                         </tr>
@@ -155,14 +155,14 @@ const Analytics = ({ analytics, theme, journalEntries }) => {
                         <h4 className="font-bold mb-4 text-zinc-500 flex items-center gap-2 uppercase tracking-widest text-[10px]">
                             Performance by Trade Type
                         </h4>
-                        <div className="overflow-hidden rounded-xl border border-zinc-100 dark:border-zinc-800">
-                            <table className="w-full text-sm">
+                        <div className="overflow-x-auto rounded-xl border border-zinc-100 dark:border-zinc-800">
+                            <table className="w-full text-sm min-w-[400px]">
                                 <thead>
                                     <tr className="bg-zinc-50 dark:bg-zinc-800/50">
-                                        <th className="text-left py-4 px-6 font-bold text-zinc-500 dark:text-zinc-400">Type</th>
-                                        <th className="text-center py-4 px-6 font-bold text-zinc-500 dark:text-zinc-400">Trades</th>
-                                        <th className="text-center py-4 px-6 font-bold text-zinc-500 dark:text-zinc-400">Win Rate</th>
-                                        <th className="text-right py-4 px-6 font-bold text-zinc-500 dark:text-zinc-400">P&L</th>
+                                        <th className="text-left py-3 px-4 sm:py-4 sm:px-6 font-bold text-zinc-500 dark:text-zinc-400">Type</th>
+                                        <th className="text-center py-3 px-4 sm:py-4 sm:px-6 font-bold text-zinc-500 dark:text-zinc-400">Trades</th>
+                                        <th className="text-center py-3 px-4 sm:py-4 sm:px-6 font-bold text-zinc-500 dark:text-zinc-400">Win Rate</th>
+                                        <th className="text-right py-3 px-4 sm:py-4 sm:px-6 font-bold text-zinc-500 dark:text-zinc-400">P&L</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -176,15 +176,15 @@ const Analytics = ({ analytics, theme, journalEntries }) => {
                                         return acc;
                                     }, {})).map(([type, stats]) => (
                                         <tr key={type} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
-                                            <td className="py-4 px-6 font-bold text-zinc-900 dark:text-zinc-100">{type}</td>
-                                            <td className="py-4 px-6 text-center font-medium">{stats.totalTrades}</td>
-                                            <td className="py-4 px-6 text-center">
+                                            <td className="py-3 px-4 sm:py-4 sm:px-6 font-bold text-zinc-900 dark:text-zinc-100">{type}</td>
+                                            <td className="py-3 px-4 sm:py-4 sm:px-6 text-center font-medium">{stats.totalTrades}</td>
+                                            <td className="py-3 px-4 sm:py-4 sm:px-6 text-center">
                                                 <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${(stats.wins / stats.totalTrades) >= 0.5 ? 'bg-green-100 text-green-700 dark:bg-green-900/30' : 'bg-red-100 text-red-700 dark:bg-red-900/30'
                                                     }`}>
                                                     {formatPercentage((stats.wins / stats.totalTrades) * 100)}
                                                 </span>
                                             </td>
-                                            <td className={`py-4 px-6 text-right font-black ${stats.pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                            <td className={`py-3 px-4 sm:py-4 sm:px-6 text-right font-black ${stats.pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                                 {formatCurrency(stats.pnl)}
                                             </td>
                                         </tr>

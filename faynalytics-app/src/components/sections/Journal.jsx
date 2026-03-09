@@ -238,7 +238,7 @@ const Journal = ({
                     <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-white dark:bg-zinc-900 z-[70] shadow-2xl p-0 animate-in slide-in-from-right duration-500 ease-out border-l border-zinc-100 dark:border-zinc-800">
                         <div className="h-full flex flex-col">
                             {/* Drawer Header */}
-                            <div className="p-8 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-800/30">
+                            <div className="p-5 sm:p-8 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-800/30">
                                 <div>
                                     <h3 className="text-2xl font-black text-zinc-900 dark:text-white">
                                         {editingId ? 'Edit Trade' : 'New Journal Entry'}
@@ -254,9 +254,9 @@ const Journal = ({
                             </div>
 
                             {/* Drawer Content */}
-                            <div className="flex-1 overflow-y-auto p-8 space-y-8">
+                            <div className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-8">
                                 {/* Visual Step Indicator (Simplified) */}
-                                <div className="grid grid-cols-2 gap-8">
+                                <div className="flex flex-col sm:grid sm:grid-cols-2 gap-6 sm:gap-8">
                                     <div className="space-y-4">
                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">General Info</h4>
                                         <div className="space-y-4">
@@ -349,8 +349,8 @@ const Journal = ({
                                             />
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                        <div className="col-span-2 sm:col-span-1">
                                             <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Lot Size *</label>
                                             <input
                                                 type="number"
@@ -364,7 +364,6 @@ const Journal = ({
                                             <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Result (€)</label>
                                             <input
                                                 type="text"
-                                                inputMode="decimal"
                                                 value={journalForm.resultEuro}
                                                 onChange={(e) => setJournalForm(v => ({ ...v, resultEuro: e.target.value }))}
                                                 className={`w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold ${parseFloat(journalForm.resultEuro) >= 0 ? 'text-green-600' : 'text-red-600'}`}
@@ -374,7 +373,6 @@ const Journal = ({
                                             <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">ROI (%)</label>
                                             <input
                                                 type="text"
-                                                inputMode="decimal"
                                                 value={journalForm.resultPercentage}
                                                 onChange={(e) => setJournalForm(v => ({ ...v, resultPercentage: e.target.value }))}
                                                 className={`w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold ${parseFloat(journalForm.resultPercentage) >= 0 ? 'text-green-600' : 'text-red-600'}`}
@@ -395,8 +393,8 @@ const Journal = ({
                             </div>
 
                             {/* Drawer Footer Actions */}
-                            <div className="p-8 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30">
-                                <div className="grid grid-cols-2 gap-4">
+                            <div className="p-5 sm:p-8 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30">
+                                <div className="flex flex-col-reverse sm:grid sm:grid-cols-2 gap-4">
                                     <button
                                         onClick={() => handleSave(true)}
                                         className="flex items-center justify-center gap-2 px-6 py-4 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 rounded-2xl hover:bg-zinc-100 transition-all font-bold shadow-sm"

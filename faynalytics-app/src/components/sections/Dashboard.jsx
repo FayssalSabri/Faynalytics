@@ -151,52 +151,52 @@ const Dashboard = ({
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Initial</span>
-                            <div className="relative w-20 sm:w-24">
-                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-zinc-400 text-[10px]">€</span>
+                    <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 sm:gap-6 mt-4 lg:mt-0">
+                        <div className="flex w-full sm:w-auto items-center justify-between sm:justify-start gap-4">
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest min-w-[40px]">Initial</span>
+                            <div className="relative w-full sm:w-28 flex-1">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-[10px]">€</span>
                                 <input
                                     type="number"
                                     value={performanceGoal.initialCapital}
                                     onChange={(e) => setPerformanceGoal(prev => ({ ...prev, initialCapital: parseFloat(e.target.value) || 0 }))}
-                                    className="w-full pl-5 pr-1 py-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md text-zinc-900 dark:text-zinc-50 text-xs focus:ring-1 focus:ring-purple-500 outline-none font-bold"
+                                    className="w-full pl-6 pr-2 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-50 text-sm focus:ring-2 focus:ring-purple-500 outline-none font-bold"
                                 />
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Actual</span>
-                            <div className="relative w-20 sm:w-24">
-                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-zinc-400 text-[10px]">€</span>
+                        <div className="flex w-full sm:w-auto items-center justify-between sm:justify-start gap-4">
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest min-w-[40px]">Actual</span>
+                            <div className="relative w-full sm:w-28 flex-1">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-[10px]">€</span>
                                 <input
                                     type="text"
                                     readOnly
                                     value={(performanceGoal.initialCapital + analytics.totalPnL).toFixed(2)}
-                                    className={`w-full pl-5 pr-1 py-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md text-xs font-bold outline-none cursor-default ${analytics.totalPnL >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                                    className={`w-full pl-6 pr-2 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-bold outline-none cursor-default ${analytics.totalPnL >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                                         }`}
                                 />
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Goal</span>
-                            <div className="relative w-20 sm:w-24">
-                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-zinc-400 text-[10px]">€</span>
+                        <div className="flex w-full sm:w-auto items-center justify-between sm:justify-start gap-4">
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest min-w-[40px]">Goal</span>
+                            <div className="relative w-full sm:w-28 flex-1">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-[10px]">€</span>
                                 <input
                                     type="number"
                                     value={performanceGoal.targetPnLEuro}
                                     onChange={(e) => setPerformanceGoal(prev => ({ ...prev, targetPnLEuro: parseFloat(e.target.value) || 0 }))}
-                                    className="w-full pl-5 pr-1 py-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md text-zinc-900 dark:text-zinc-50 text-xs focus:ring-1 focus:ring-purple-500 outline-none font-bold"
+                                    className="w-full pl-6 pr-2 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-50 text-sm focus:ring-2 focus:ring-purple-500 outline-none font-bold"
                                 />
                             </div>
                         </div>
 
                         <button
                             onClick={() => showToast('Target updated', 'success')}
-                            className="px-4 py-1.5 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
+                            className="w-full sm:w-auto mt-2 sm:mt-0 px-6 py-2 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity"
                         >
-                            Update
+                            Update Target
                         </button>
                     </div>
 
