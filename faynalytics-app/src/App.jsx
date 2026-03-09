@@ -320,12 +320,13 @@ const FaynalyticsApp = () => {
     let cumulative = parseFloat(performanceGoal.initialCapital) || 0;
 
     const equityData = [
-      { date: 'Start', equity: cumulative },
-      ...sortedTrades.map(trade => {
+      { date: 'Start', equity: cumulative, xAxisKey: 'Start' },
+      ...sortedTrades.map((trade, index) => {
         cumulative += (parseFloat(trade.resultEuro) || 0);
         return {
           date: trade.date,
-          equity: parseFloat(cumulative.toFixed(2))
+          equity: parseFloat(cumulative.toFixed(2)),
+          xAxisKey: `${trade.date}-${index}`
         };
       })
     ];

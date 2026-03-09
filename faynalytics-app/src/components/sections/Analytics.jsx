@@ -24,12 +24,13 @@ const Analytics = ({ analytics, theme, journalEntries, performanceGoal }) => {
                             <LineChart data={analytics.equityData}>
                                 <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#27272a' : '#f4f4f5'} opacity={0.5} vertical={false} />
                                 <XAxis
-                                    dataKey="date"
+                                    dataKey="xAxisKey"
                                     stroke="#71717a"
                                     fontSize={12}
                                     tickLine={false}
                                     axisLine={false}
                                     dy={10}
+                                    tickFormatter={(value) => value.split('-')[0]}
                                 />
                                 <YAxis
                                     stroke="#71717a"
@@ -40,6 +41,10 @@ const Analytics = ({ analytics, theme, journalEntries, performanceGoal }) => {
                                     domain={(['auto', 'auto'])}
                                 />
                                 <Tooltip
+                                    labelFormatter={(label, payload) => {
+                                        if (payload && payload[0]) return payload[0].payload.date;
+                                        return label.split('-')[0];
+                                    }}
                                     formatter={(value) => [formatCurrency(value), 'Cumulative Equity']}
                                     contentStyle={{
                                         backgroundColor: theme === 'dark' ? '#18181b' : '#FFFFFF',
