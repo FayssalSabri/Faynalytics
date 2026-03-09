@@ -172,7 +172,7 @@ const Dashboard = ({
                                 <input
                                     type="text"
                                     readOnly
-                                    value={(performanceGoal.initialCapital + analytics.totalPnL).toFixed(2)}
+                                    value={(analytics.currentEquity || parseFloat(performanceGoal.initialCapital) || 0).toFixed(2)}
                                     className={`w-full pl-6 pr-2 py-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-bold outline-none cursor-default ${analytics.totalPnL >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                                         }`}
                                 />

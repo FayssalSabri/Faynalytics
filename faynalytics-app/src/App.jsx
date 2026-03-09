@@ -335,8 +335,9 @@ const FaynalyticsApp = () => {
       return acc;
     }, {});
     const assetData = Object.entries(assetPerformance).map(([asset, pnl]) => ({ asset, pnl }));
+    const currentEquity = cumulative;
 
-    return { totalTrades, winRate, totalPnL, avgPnL, equityData, assetData };
+    return { totalTrades, winRate, totalPnL, avgPnL, equityData, assetData, currentEquity };
   }, [journalEntries, performanceGoal.initialCapital]);
 
   const goalProgress = useMemo(() => {
