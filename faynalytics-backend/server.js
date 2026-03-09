@@ -22,11 +22,24 @@ const oauth2Client = new google.auth.OAuth2(
     REDIRECT_URI
 );
 
+// Validate Google credentials at startup
+if (!CLIENT_ID || !CLIENT_SECRET) {
+    console.error('CRITICAL ERROR: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing in environment variables!');
+}
+
 // Stores user tokens (in-memory, for development only!)
 const tokens = {};
 
 // --- Authentication Route ---
 app.get('/google/auth', (req, res) => {
+    if (!CLIENT_ID) {
+        console.error('Auth request failed: client_id is undefined');
+        return res.status(500).json({
+            error: 'Backend configuration error: client_id is missing',
+            details: 'Ensure GOOGLE_CLIENT_ID is set in Vercel environment variables.'
+        });
+    }
+
     const scopes = [
         'https://www.googleapis.com/auth/drive.file',
         'https://www.googleapis.com/auth/userinfo.profile'
@@ -172,6 +185,10 @@ app.use((req, res, next) => {
     res.status(404).send("Sorry, that page can't be found!");
 });
 
-app.listen(PORT, () => {
-    console.log(`Backend server is running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Backend server is running on http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;
