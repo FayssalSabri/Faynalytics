@@ -146,6 +146,22 @@ app.get('/api/user-profile', isAuthenticated, async (req, res) => {
     }
 });
 
+// --- Check Auth Status ---
+app.get('/api/auth-status', (req, res) => {
+    if (tokens.access_token) {
+        res.status(200).json({ authenticated: true });
+    } else {
+        res.status(200).json({ authenticated: false });
+    }
+});
+
+// --- Logout ---
+app.post('/api/logout', (req, res) => {
+    tokens.access_token = null;
+    tokens.refresh_token = null;
+    res.status(200).json({ message: 'Logged out successfully' });
+});
+
 // --- New root route ---
 app.get('/', (req, res) => {
     res.send('Faynalytics Backend is running!');

@@ -34,7 +34,7 @@ const FaynalyticsApp = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [isDriveConnected, setIsDriveConnected] = useState(false);
+  const [isDriveConnected, setIsDriveConnected] = useState(() => localStorage.getItem('driveConnected') === 'true');
   const [userName, setUserName] = useState(null);
 
   // Data State
@@ -108,6 +108,28 @@ const FaynalyticsApp = () => {
   useEffect(() => {
     localStorage.setItem('tradingPerformanceGoal', JSON.stringify(performanceGoal));
   }, [performanceGoal]);
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/auth-status`);
+        if (response.ok) {
+          const data = await response.json();
+          setIsDriveConnected(data.authenticated);
+          if (data.authenticated) {
+            fetchUserProfile();
+          }
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+      }
+    };
+    checkAuthStatus();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('driveConnected', isDriveConnected);
+  }, [isDriveConnected]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -298,7 +320,12 @@ const FaynalyticsApp = () => {
     } catch (error) { showToast('Network error', 'error'); }
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    try {
+      await fetch(`${BACKEND_URL}/api/logout`, { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     setIsDriveConnected(false);
     setUserName(null);
     showToast('Signed out', 'info');
