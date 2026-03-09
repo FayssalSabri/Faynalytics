@@ -36,7 +36,14 @@ const Analytics = ({ analytics, theme, journalEntries, performanceGoal }) => {
                                     fontSize={12}
                                     tickLine={false}
                                     axisLine={false}
-                                    tickFormatter={(value) => `€${value}`}
+                                    tickFormatter={(value) => `€${Math.round(value)}`}
+                                    domain={([dataMin, dataMax]) => {
+                                        const min = Math.min(dataMin, finalTarget);
+                                        const max = Math.max(dataMax, finalTarget);
+                                        const spread = max - min;
+                                        const padding = spread > 0 ? spread * 0.2 : 100;
+                                        return [Math.floor(min - padding), Math.ceil(max + padding)];
+                                    }}
                                 />
                                 <Tooltip
                                     formatter={(value) => [formatCurrency(value), 'Cumulative Equity']}

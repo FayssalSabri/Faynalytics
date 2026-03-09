@@ -308,8 +308,8 @@ const FaynalyticsApp = () => {
   const analytics = useMemo(() => {
     const trades = journalEntries.filter(e => !e.is_draft);
     const totalTrades = trades.length;
-    const winningTrades = trades.filter(e => e.resultEuro > 0).length;
-    const totalPnL = trades.reduce((sum, e) => sum + (e.resultEuro || 0), 0);
+    const winningTrades = trades.filter(e => parseFloat(e.resultEuro) > 0).length;
+    const totalPnL = trades.reduce((sum, e) => sum + (parseFloat(e.resultEuro) || 0), 0);
     const avgPnL = totalTrades > 0 ? totalPnL / totalTrades : 0;
     const winRate = totalTrades > 0 ? (winningTrades / totalTrades * 100) : 0;
 
