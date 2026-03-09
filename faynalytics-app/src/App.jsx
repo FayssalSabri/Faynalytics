@@ -313,12 +313,22 @@ const FaynalyticsApp = () => {
     const avgPnL = totalTrades > 0 ? totalPnL / totalTrades : 0;
     const winRate = totalTrades > 0 ? (winningTrades / totalTrades * 100) : 0;
 
-    const sortedTrades = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
-    let cumulative = 0;
-    const equityData = sortedTrades.map(trade => ({
-      date: trade.date,
-      equity: cumulative += trade.resultEuro
-    }));
+    // Sort by timestamp for accurate chronological order
+    const sortedTrades = [...trades].sort((a, b) => new Date(a.timestamp || a.date) - new Date(b.timestamp || b.date));
+
+    // Start with initial capital
+    let cumulative = parseFloat(performanceGoal.initialCapital) || 0;
+
+    const equityData = [
+      { date: 'Start', equity: cumulative },
+      ...sortedTrades.map(trade => {
+        cumulative += (parseFloat(trade.resultEuro) || 0);
+        return {
+          date: trade.date,
+          equity: parseFloat(cumulative.toFixed(2))
+        };
+      })
+    ];
 
     const assetPerformance = trades.reduce((acc, trade) => {
       acc[trade.asset] = (acc[trade.asset] || 0) + trade.resultEuro;
@@ -327,7 +337,7 @@ const FaynalyticsApp = () => {
     const assetData = Object.entries(assetPerformance).map(([asset, pnl]) => ({ asset, pnl }));
 
     return { totalTrades, winRate, totalPnL, avgPnL, equityData, assetData };
-  }, [journalEntries]);
+  }, [journalEntries, performanceGoal.initialCapital]);
 
   const goalProgress = useMemo(() => {
     // Determine the profit target:
@@ -359,7 +369,7 @@ const FaynalyticsApp = () => {
       dashboard: { isDriveConnected, handleSaveToCloud, handleLoadFromCloud, handleSignOut, BACKEND_URL, analytics, performanceGoal, setPerformanceGoal, goalProgress, showToast, setCurrentSection, journalEntries },
       calculator: { calculatorData, setCalculatorData, calculatePosition, calculatorResult },
       journal: { journalEntries, setJournalEntries, journalForm, setJournalForm, editingId, setEditingId, addJournalEntry, resetJournalForm, editEntry, deleteEntry, filters, setFilters, showToast },
-      analytics: { analytics, theme, journalEntries },
+      analytics: { analytics, theme, journalEntries, performanceGoal },
       sessions: {},
       settings: { theme, setTheme, journalEntries, setJournalEntries, clearJournal, showToast }
     };

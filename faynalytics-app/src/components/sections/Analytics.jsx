@@ -1,9 +1,15 @@
 import React from 'react';
 import { TrendingUp, BarChart3 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, ReferenceLine } from 'recharts';
 import { formatCurrency, formatPercentage } from '../../utils/helpers';
 
-const Analytics = ({ analytics, theme, journalEntries }) => {
+const Analytics = ({ analytics, theme, journalEntries, performanceGoal }) => {
+    const targetBalance = (parseFloat(performanceGoal.initialCapital) || 0) + (parseFloat(performanceGoal.targetPnLEuro) > 1000 ? (parseFloat(performanceGoal.targetPnLEuro) - parseFloat(performanceGoal.initialCapital)) : parseFloat(performanceGoal.targetPnLEuro));
+    // Simplified target balance logic: if targetPnLEuro is clearly a balance (e.g. 5400 > 5000), use it. otherwise add profit to initial.
+    const finalTarget = (performanceGoal.targetPnLEuro > performanceGoal.initialCapital)
+        ? performanceGoal.targetPnLEuro
+        : (performanceGoal.initialCapital + performanceGoal.targetPnLEuro);
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Charts */}
@@ -33,6 +39,7 @@ const Analytics = ({ analytics, theme, journalEntries }) => {
                                     tickFormatter={(value) => `€${value}`}
                                 />
                                 <Tooltip
+                                    formatter={(value) => [formatCurrency(value), 'Cumulative Equity']}
                                     contentStyle={{
                                         backgroundColor: theme === 'dark' ? '#18181b' : '#FFFFFF',
                                         border: '1px solid ' + (theme === 'dark' ? '#27272a' : '#f4f4f5'),
@@ -40,6 +47,18 @@ const Analytics = ({ analytics, theme, journalEntries }) => {
                                         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
                                     }}
                                     itemStyle={{ fontWeight: 'bold' }}
+                                />
+                                <ReferenceLine
+                                    y={finalTarget}
+                                    stroke="#9333ea"
+                                    strokeDasharray="5 5"
+                                    label={{
+                                        value: `Target: €${finalTarget}`,
+                                        position: 'right',
+                                        fill: '#9333ea',
+                                        fontSize: 10,
+                                        fontWeight: 'bold'
+                                    }}
                                 />
                                 <Line
                                     type="monotone"
