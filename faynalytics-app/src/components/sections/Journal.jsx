@@ -23,14 +23,27 @@ const Journal = ({
     // Lock scroll when drawer is open
     useEffect(() => {
         if (isDrawerOpen) {
+            const scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
             document.body.style.overflow = 'hidden';
-            // Prevent horizontal jitter on some mobile browsers
             document.documentElement.style.overflowX = 'hidden';
         } else {
+            const scrollY = document.body.style.top;
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
             document.body.style.overflow = '';
             document.documentElement.style.overflowX = '';
+            if (scrollY) {
+                window.scrollTo(0, parseInt(scrollY || '0') * -1);
+            }
         }
         return () => {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
             document.body.style.overflow = '';
             document.documentElement.style.overflowX = '';
         };
@@ -251,7 +264,7 @@ const Journal = ({
                         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] animate-in fade-in duration-300"
                         onClick={handleCloseDrawer}
                     ></div>
-                    <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-white dark:bg-zinc-900 z-[70] shadow-2xl p-0 animate-in slide-in-from-right duration-500 ease-out border-l border-zinc-100 dark:border-zinc-800 overflow-x-hidden">
+                    <div className="fixed inset-y-0 right-0 w-full max-w-[100vw] sm:max-w-xl bg-white dark:bg-zinc-900 z-[70] shadow-2xl p-0 animate-in slide-in-from-right duration-500 ease-out border-l border-zinc-100 dark:border-zinc-800 overflow-x-hidden touch-pan-y">
                         <div className="h-full flex flex-col">
                             {/* Drawer Header */}
                             <div className="p-5 sm:p-8 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-800/30">
@@ -270,7 +283,7 @@ const Journal = ({
                             </div>
 
                             {/* Drawer Content */}
-                            <div className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-8">
+                            <div className="flex-1 overflow-y-auto overflow-x-hidden p-5 sm:p-8 space-y-8 touch-pan-y">
                                 {/* Visual Step Indicator (Simplified) */}
                                 <div className="flex flex-col sm:grid sm:grid-cols-2 gap-6 sm:gap-8">
                                     <div className="space-y-4">

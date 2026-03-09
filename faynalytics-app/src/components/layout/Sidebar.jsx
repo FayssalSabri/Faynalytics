@@ -9,7 +9,7 @@ const Sidebar = ({
     setCurrentSection
 }) => {
     return (
-        <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
+        <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0 visible' : '-translate-x-full invisible lg:visible'} lg:translate-x-0`}>
             <div className="p-8">
                 <div className="flex items-center justify-between mb-10">
                     <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
@@ -35,8 +35,8 @@ const Sidebar = ({
                                     setSidebarOpen(false);
                                 }}
                                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${isActive
-                                        ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white'
-                                        : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white'
+                                    ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white'
+                                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-white'
                                     }`}
                             >
                                 <Icon size={18} className={isActive ? 'text-purple-600' : ''} />
