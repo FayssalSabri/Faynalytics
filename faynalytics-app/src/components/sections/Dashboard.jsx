@@ -154,26 +154,40 @@ const Dashboard = ({
                     <div className="flex flex-wrap items-center gap-4">
                         <div className="flex items-center gap-2">
                             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Initial</span>
-                            <div className="relative w-24">
+                            <div className="relative w-20 sm:w-24">
                                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-zinc-400 text-[10px]">€</span>
                                 <input
                                     type="number"
                                     value={performanceGoal.initialCapital}
                                     onChange={(e) => setPerformanceGoal(prev => ({ ...prev, initialCapital: parseFloat(e.target.value) || 0 }))}
-                                    className="w-full pl-5 pr-2 py-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md text-zinc-900 dark:text-zinc-50 text-xs focus:ring-1 focus:ring-purple-500 outline-none font-bold"
+                                    className="w-full pl-5 pr-1 py-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md text-zinc-900 dark:text-zinc-50 text-xs focus:ring-1 focus:ring-purple-500 outline-none font-bold"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Actual</span>
+                            <div className="relative w-20 sm:w-24">
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-zinc-400 text-[10px]">€</span>
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={(performanceGoal.initialCapital + analytics.totalPnL).toFixed(2)}
+                                    className={`w-full pl-5 pr-1 py-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md text-xs font-bold outline-none cursor-default ${analytics.totalPnL >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                                        }`}
                                 />
                             </div>
                         </div>
 
                         <div className="flex items-center gap-2">
                             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Goal</span>
-                            <div className="relative w-24">
+                            <div className="relative w-20 sm:w-24">
                                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-zinc-400 text-[10px]">€</span>
                                 <input
                                     type="number"
                                     value={performanceGoal.targetPnLEuro}
                                     onChange={(e) => setPerformanceGoal(prev => ({ ...prev, targetPnLEuro: parseFloat(e.target.value) || 0 }))}
-                                    className="w-full pl-5 pr-2 py-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md text-zinc-900 dark:text-zinc-50 text-xs focus:ring-1 focus:ring-purple-500 outline-none font-bold"
+                                    className="w-full pl-5 pr-1 py-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md text-zinc-900 dark:text-zinc-50 text-xs focus:ring-1 focus:ring-purple-500 outline-none font-bold"
                                 />
                             </div>
                         </div>
@@ -189,12 +203,14 @@ const Dashboard = ({
                     <div className="flex-1 lg:max-w-xs w-full space-y-2">
                         <div className="flex justify-between items-center px-0.5">
                             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Progress</span>
-                            <span className="text-xs font-black text-purple-600 dark:text-purple-400">{formatPercentage(goalProgress)}</span>
+                            <span className={`text-xs font-black ${analytics.totalPnL < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-purple-600 dark:text-purple-400'}`}>
+                                {analytics.totalPnL < 0 ? 'Drawdown' : formatPercentage(goalProgress)}
+                            </span>
                         </div>
                         <div className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden">
                             <div
-                                className="h-full bg-purple-600 transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(147,51,234,0.3)]"
-                                style={{ width: `${Math.min(100, Math.max(0, goalProgress))}%` }}
+                                className={`h-full transition-all duration-1000 ease-out ${analytics.totalPnL < 0 ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.3)]' : 'bg-purple-600 shadow-[0_0_8px_rgba(147,51,234,0.3)]'}`}
+                                style={{ width: `${analytics.totalPnL < 0 ? 100 : Math.min(100, Math.max(0, goalProgress))}%` }}
                             />
                         </div>
                     </div>

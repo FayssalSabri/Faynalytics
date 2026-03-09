@@ -175,12 +175,10 @@ const Journal = ({
                                         </p>
                                     )}
 
-                                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
                                         {[
                                             { label: 'Entry', value: entry.entryPrice },
-                                            { label: 'Stop Loss', value: entry.stopLoss },
-                                            { label: 'Take Profit', value: entry.takeProfit },
-                                            { label: 'RRR', value: entry.rrr || 'N/A' },
+                                            { label: 'Exit', value: entry.exitPrice || 'Open' },
                                             { label: 'Size', value: entry.positionSize + ' lots' }
                                         ].map((stat, i) => (
                                             <div key={i}>
@@ -191,10 +189,10 @@ const Journal = ({
                                     </div>
                                 </div>
 
-                                <div className="lg:text-right flex lg:flex-col justify-between items-center lg:items-end gap-2">
-                                    <div className="space-y-1">
+                                <div className="lg:text-right flex flex-row lg:flex-col justify-between items-center lg:items-end gap-2">
+                                    <div className="space-y-1 text-left lg:text-right">
                                         <p className={`text-3xl font-black tracking-tighter ${entry.resultEuro >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                            {formatCurrency(entry.resultEuro)}
+                                            {entry.resultEuro > 0 ? '+' : ''}{formatCurrency(entry.resultEuro)}
                                         </p>
                                         <p className={`text-xs font-bold uppercase tracking-widest ${entry.resultEuro >= 0 ? 'text-green-600/70' : 'text-red-600/70'}`}>
                                             {entry.resultPercentage.toFixed(2)}% ROI
@@ -310,7 +308,7 @@ const Journal = ({
 
                                     <div className="space-y-4">
                                         <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Entry Details</h4>
-                                        <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Entry Price *</label>
                                                 <input
@@ -323,24 +321,13 @@ const Journal = ({
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Take Profit *</label>
+                                                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Exit Price</label>
                                                 <input
                                                     type="number"
                                                     step="any"
-                                                    value={journalForm.takeProfit}
-                                                    onChange={(e) => setJournalForm(v => ({ ...v, takeProfit: e.target.value }))}
-                                                    className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold text-green-600 dark:text-green-400"
-                                                    placeholder="0.0000"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Stop Loss *</label>
-                                                <input
-                                                    type="number"
-                                                    step="any"
-                                                    value={journalForm.stopLoss}
-                                                    onChange={(e) => setJournalForm(v => ({ ...v, stopLoss: e.target.value }))}
-                                                    className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold text-red-600 dark:text-red-400"
+                                                    value={journalForm.exitPrice}
+                                                    onChange={(e) => setJournalForm(v => ({ ...v, exitPrice: e.target.value }))}
+                                                    className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold"
                                                     placeholder="0.0000"
                                                 />
                                             </div>
@@ -350,7 +337,7 @@ const Journal = ({
 
                                 <div className="space-y-4">
                                     <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Execution & Outcome</h4>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 gap-4">
                                         <div>
                                             <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Setup / Strategy</label>
                                             <input
@@ -359,16 +346,6 @@ const Journal = ({
                                                 onChange={(e) => setJournalForm(v => ({ ...v, setup: e.target.value }))}
                                                 className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold"
                                                 placeholder="e.g. Breakout"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">RRR (Min 1:x)</label>
-                                            <input
-                                                type="text"
-                                                value={journalForm.rrr}
-                                                onChange={(e) => setJournalForm(v => ({ ...v, rrr: e.target.value }))}
-                                                className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold"
-                                                placeholder="1:2"
                                             />
                                         </div>
                                     </div>
@@ -386,21 +363,21 @@ const Journal = ({
                                         <div>
                                             <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">Result (€)</label>
                                             <input
-                                                type="number"
-                                                step="any"
+                                                type="text"
+                                                inputMode="decimal"
                                                 value={journalForm.resultEuro}
-                                                onChange={(e) => setJournalForm(v => ({ ...v, resultEuro: parseFloat(e.target.value) || 0 }))}
-                                                className={`w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold ${journalForm.resultEuro >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                                                onChange={(e) => setJournalForm(v => ({ ...v, resultEuro: e.target.value }))}
+                                                className={`w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold ${parseFloat(journalForm.resultEuro) >= 0 ? 'text-green-600' : 'text-red-600'}`}
                                             />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">ROI (%)</label>
                                             <input
-                                                type="number"
-                                                step="any"
+                                                type="text"
+                                                inputMode="decimal"
                                                 value={journalForm.resultPercentage}
-                                                onChange={(e) => setJournalForm(v => ({ ...v, resultPercentage: parseFloat(e.target.value) || 0 }))}
-                                                className={`w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold ${journalForm.resultPercentage >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                                                onChange={(e) => setJournalForm(v => ({ ...v, resultPercentage: e.target.value }))}
+                                                className={`w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-purple-500 font-bold ${parseFloat(journalForm.resultPercentage) >= 0 ? 'text-green-600' : 'text-red-600'}`}
                                             />
                                         </div>
                                     </div>

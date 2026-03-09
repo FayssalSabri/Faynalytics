@@ -26,12 +26,15 @@ const SmartInsights = ({ journalEntries }) => {
             }
         });
 
-        const bestAsset = Object.entries(assetPerformance).reduce((a, b) => b[1].pnl > a[1].pnl ? b : a);
-        const bestType = Object.entries(typePerformance).reduce((a, b) => b[1].wins / b[1].total > a[1].wins / a[1].total ? b : a);
+        const sortedAssets = Object.entries(assetPerformance).sort((a, b) => b[1].pnl - a[1].pnl);
+        const bestAsset = sortedAssets[0];
+
+        const sortedTypes = Object.entries(typePerformance).sort((a, b) => (b[1].wins / b[1].total) - (a[1].wins / a[1].total));
+        const bestType = sortedTypes[0];
 
         return {
-            bestAsset: { name: bestAsset[0], pnl: bestAsset[1].pnl },
-            bestType: { name: bestType[0], winRate: (bestType[1].wins / bestType[1].total) * 100 }
+            bestAsset: { name: bestAsset[0], pnl: bestAsset[1].pnl, total: bestAsset[1].total },
+            bestType: { name: bestType[0], winRate: (bestType[1].wins / bestType[1].total) * 100, pnl: bestType[1].pnl }
         };
     }, [journalEntries]);
 
@@ -55,11 +58,13 @@ const SmartInsights = ({ journalEntries }) => {
             <div className="grid grid-cols-2 gap-3 relative z-10">
                 <div className="p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
                     <div className="flex items-center gap-2 mb-1">
-                        <Award className="text-emerald-500" size={12} />
+                        <Award className={insights.bestAsset.pnl >= 0 ? "text-emerald-500" : "text-rose-500"} size={12} />
                         <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-tighter">Top Asset</span>
                     </div>
                     <p className="text-sm font-black text-zinc-900 dark:text-white truncate">{insights.bestAsset.name}</p>
-                    <p className="text-[10px] font-bold text-emerald-600">+{formatCurrency(insights.bestAsset.pnl)}</p>
+                    <p className={`text-[10px] font-bold ${insights.bestAsset.pnl >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {insights.bestAsset.pnl > 0 ? '+' : ''}{formatCurrency(insights.bestAsset.pnl)}
+                    </p>
                 </div>
 
                 <div className="p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
@@ -73,7 +78,13 @@ const SmartInsights = ({ journalEntries }) => {
             </div>
 
             <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
-                <p className="text-[9px] text-zinc-500 font-medium italic">"Your edge is strongest in {insights.bestAsset.name} {insights.bestType.name.toLowerCase()}s. Focus there."</p>
+                <p className="text-[9px] text-zinc-500 font-medium italic">
+                    {insights.bestAsset.pnl > 0 && insights.bestType.winRate > 50
+                        ? `"Your edge is strongest in ${insights.bestAsset.name} ${insights.bestType.name.toLowerCase()}s. Focus there."`
+                        : insights.bestAsset.pnl < 0
+                            ? `"Strategy optimization needed for ${insights.bestAsset.name}. Consider reviewing your execution."`
+                            : `"Continue building data for ${insights.bestAsset.name} to refine your edge."`}
+                </p>
             </div>
         </div>
     );

@@ -1,4 +1,7 @@
-export const formatCurrency = (amount) => `€${Number(amount).toFixed(2)}`;
+export const formatCurrency = (amount) => {
+    const isNegative = Number(amount) < 0;
+    return `${isNegative ? '-' : ''}€${Math.abs(Number(amount)).toFixed(2)}`;
+};
 export const formatPercentage = (value) => `${Number(value).toFixed(2)}%`;
 
 export const getTradingSessionStatus = () => {

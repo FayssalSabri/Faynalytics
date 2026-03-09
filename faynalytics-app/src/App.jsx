@@ -188,20 +188,18 @@ const FaynalyticsApp = () => {
   };
 
   const addJournalEntry = (isDraft = false) => {
-    const { date, asset, customAsset, tradeType, setup, entryPrice, stopLoss, takeProfit, rrr, positionSize, resultEuro, resultPercentage, comment } = journalForm;
+    const { date, asset, customAsset, tradeType, setup, entryPrice, exitPrice, positionSize, resultEuro, resultPercentage, comment } = journalForm;
     const finalAsset = asset === 'other' ? customAsset.toUpperCase() : asset;
 
-    if (!date || !finalAsset || !entryPrice || !stopLoss || !takeProfit || !positionSize) {
-      showToast('Please fill in all required fields', 'error');
+    if (!date || !finalAsset || !entryPrice || !positionSize) {
+      showToast('Please fill in all required fields (Entry, Size)', 'error');
       return;
     }
 
     const entry = {
       date, asset: finalAsset, tradeType, setup,
       entryPrice: parseFloat(entryPrice),
-      stopLoss: parseFloat(stopLoss),
-      takeProfit: parseFloat(takeProfit),
-      rrr,
+      exitPrice: exitPrice ? parseFloat(exitPrice) : null,
       positionSize: parseFloat(positionSize),
       resultEuro: parseFloat(resultEuro) || 0,
       resultPercentage: parseFloat(resultPercentage) || 0,
@@ -230,8 +228,8 @@ const FaynalyticsApp = () => {
     setJournalForm({
       date: new Date().toISOString().split('T')[0],
       asset: 'EURUSD', customAsset: '', tradeType: 'Buy', setup: '',
-      entryPrice: '', stopLoss: '', takeProfit: '', rrr: '',
-      positionSize: '', resultEuro: 0, resultPercentage: 0, comment: ''
+      entryPrice: '', exitPrice: '',
+      positionSize: '', resultEuro: '', resultPercentage: '', comment: ''
     });
     setEditingId(null);
   };
@@ -245,15 +243,13 @@ const FaynalyticsApp = () => {
       asset: Object.keys(currencyPairs).includes(entry.asset) ? entry.asset : 'other',
       customAsset: !Object.keys(currencyPairs).includes(entry.asset) ? entry.asset : '',
       tradeType: entry.tradeType,
-      setup: entry.setup,
+      setup: entry.setup || '',
       entryPrice: entry.entryPrice.toString(),
-      stopLoss: entry.stopLoss.toString(),
-      takeProfit: entry.takeProfit.toString(),
-      rrr: entry.rrr,
+      exitPrice: entry.exitPrice ? entry.exitPrice.toString() : '',
       positionSize: entry.positionSize.toString(),
-      resultEuro: entry.resultEuro,
-      resultPercentage: entry.resultPercentage,
-      comment: entry.comment
+      resultEuro: entry.resultEuro.toString(),
+      resultPercentage: entry.resultPercentage.toString(),
+      comment: entry.comment || ''
     });
     setEditingId(id);
   };
