@@ -27,8 +27,10 @@ if (!CLIENT_ID || !CLIENT_SECRET) {
     console.error('CRITICAL ERROR: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing in environment variables!');
 }
 
-// Stores user tokens (in-memory, for development only!)
-const tokens = {};
+// Google credentials validation at startup
+if (!CLIENT_ID || !CLIENT_SECRET) {
+    console.error('CRITICAL ERROR: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing in environment variables!');
+}
 
 // --- Authentication Route ---
 app.get('/google/auth', (req, res) => {
@@ -55,31 +57,35 @@ app.get('/google/auth', (req, res) => {
 app.get('/google/callback', async (req, res) => {
     const { code } = req.query;
     try {
-        const { tokens: newTokens } = await oauth2Client.getToken(code);
-        tokens.access_token = newTokens.access_token;
-        tokens.refresh_token = newTokens.refresh_token;
-
-        // La redirection pointe maintenant vers la variable d'environnement
-        res.redirect(`${FRONTEND_URL}/settings?status=success`);
-
+        const { tokens } = await oauth2Client.getToken(code);
+        // Encode tokens to pass them back to the frontend safely
+        const encodedTokens = Buffer.from(JSON.stringify(tokens)).toString('base64');
+        res.redirect(`${FRONTEND_URL}/settings?status=success&tokens=${encodedTokens}`);
     } catch (error) {
         console.error('Authentication failed:', error);
-        res.status(500).send('Authentication failed');
+        res.redirect(`${FRONTEND_URL}/settings?status=error`);
     }
 });
 
-// Middleware to check if user is authenticated
+// Middleware to check if user is authenticated (Stateless)
 const isAuthenticated = (req, res, next) => {
-    if (!tokens.access_token) {
-        return res.status(401).send('Not authenticated. Please connect to Google Drive first.');
+    const tokenHeader = req.headers['x-google-tokens'];
+    if (!tokenHeader) {
+        return res.status(401).send('Not authenticated. Tokens missing.');
     }
-    next();
+    try {
+        const userTokens = JSON.parse(Buffer.from(tokenHeader, 'base64').toString());
+        req.userTokens = userTokens;
+        next();
+    } catch (e) {
+        return res.status(401).send('Invalid token format.');
+    }
 };
 
 // --- Save Journal to Google Drive ---
 app.post('/api/save-journal', isAuthenticated, async (req, res) => {
     try {
-        oauth2Client.setCredentials(tokens);
+        oauth2Client.setCredentials(req.userTokens);
         const drive = google.drive({ version: 'v3', auth: oauth2Client });
         const journalData = JSON.stringify(req.body.journalData, null, 2);
 
@@ -121,7 +127,7 @@ app.post('/api/save-journal', isAuthenticated, async (req, res) => {
 // --- Load Journal from Google Drive ---
 app.get('/api/load-journal', isAuthenticated, async (req, res) => {
     try {
-        oauth2Client.setCredentials(tokens);
+        oauth2Client.setCredentials(req.userTokens);
         const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
         // Find the journal file
@@ -149,7 +155,7 @@ app.get('/api/load-journal', isAuthenticated, async (req, res) => {
 // --- Get user profile route ---
 app.get('/api/user-profile', isAuthenticated, async (req, res) => {
     try {
-        oauth2Client.setCredentials(tokens);
+        oauth2Client.setCredentials(req.userTokens);
         const userInfo = google.oauth2({ version: 'v2', auth: oauth2Client });
         const profile = await userInfo.userinfo.get();
         res.status(200).json(profile.data);
@@ -161,17 +167,12 @@ app.get('/api/user-profile', isAuthenticated, async (req, res) => {
 
 // --- Check Auth Status ---
 app.get('/api/auth-status', (req, res) => {
-    if (tokens.access_token) {
-        res.status(200).json({ authenticated: true });
-    } else {
-        res.status(200).json({ authenticated: false });
-    }
+    const tokenHeader = req.headers['x-google-tokens'];
+    res.status(200).json({ authenticated: !!tokenHeader });
 });
 
 // --- Logout ---
 app.post('/api/logout', (req, res) => {
-    tokens.access_token = null;
-    tokens.refresh_token = null;
     res.status(200).json({ message: 'Logged out successfully' });
 });
 

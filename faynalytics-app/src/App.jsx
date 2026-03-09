@@ -34,7 +34,7 @@ const FaynalyticsApp = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [isDriveConnected, setIsDriveConnected] = useState(() => localStorage.getItem('driveConnected') === 'true');
+  const [isDriveConnected, setIsDriveConnected] = useState(() => !!localStorage.getItem('googleTokens'));
   const [userName, setUserName] = useState(null);
 
   // Data State
@@ -105,19 +105,33 @@ const FaynalyticsApp = () => {
     }
   }, [theme]);
 
+  // Helper for backend requests
+  const getAuthHeaders = (extraHeaders = {}) => {
+    const tokens = localStorage.getItem('googleTokens');
+    return {
+      ...extraHeaders,
+      'x-google-tokens': tokens || ''
+    };
+  };
+
   useEffect(() => {
     localStorage.setItem('tradingPerformanceGoal', JSON.stringify(performanceGoal));
   }, [performanceGoal]);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
+      if (!isDriveConnected) return;
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth-status`);
+        const response = await fetch(`${BACKEND_URL}/api/auth-status`, {
+          headers: getAuthHeaders()
+        });
         if (response.ok) {
           const data = await response.json();
           setIsDriveConnected(data.authenticated);
           if (data.authenticated) {
             fetchUserProfile();
+          } else {
+            localStorage.removeItem('googleTokens');
           }
         }
       } catch (error) {
@@ -127,16 +141,18 @@ const FaynalyticsApp = () => {
     checkAuthStatus();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('driveConnected', isDriveConnected);
-  }, [isDriveConnected]);
+  // Removed obsolete effect
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('status') === 'success') {
-      setIsDriveConnected(true);
-      showToast('Successfully connected to Google Drive!', 'success');
-      fetchUserProfile();
+      const tokens = params.get('tokens');
+      if (tokens) {
+        localStorage.setItem('googleTokens', tokens);
+        setIsDriveConnected(true);
+        showToast('Successfully connected to Google Drive!', 'success');
+        fetchUserProfile();
+      }
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -165,7 +181,9 @@ const FaynalyticsApp = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/user-profile`);
+      const response = await fetch(`${BACKEND_URL}/api/user-profile`, {
+        headers: getAuthHeaders()
+      });
       if (response.ok) {
         const data = await response.json();
         setUserName(data.given_name || data.name);
@@ -300,7 +318,7 @@ const FaynalyticsApp = () => {
       showToast('Saving to Google Drive...', 'info');
       const response = await fetch(`${BACKEND_URL}/api/save-journal`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ journalData: dataToSave }),
       });
       if (response.ok) showToast('Journal saved!', 'success');
@@ -311,7 +329,9 @@ const FaynalyticsApp = () => {
   const handleLoadFromCloud = async () => {
     try {
       showToast('Loading from Google Drive...', 'info');
-      const response = await fetch(`${BACKEND_URL}/api/load-journal`);
+      const response = await fetch(`${BACKEND_URL}/api/load-journal`, {
+        headers: getAuthHeaders()
+      });
       if (response.ok) {
         const data = await response.json();
         setJournalEntries(data);
@@ -322,10 +342,14 @@ const FaynalyticsApp = () => {
 
   const handleSignOut = async () => {
     try {
-      await fetch(`${BACKEND_URL}/api/logout`, { method: 'POST' });
+      await fetch(`${BACKEND_URL}/api/logout`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
     } catch (error) {
       console.error('Logout error:', error);
     }
+    localStorage.removeItem('googleTokens');
     setIsDriveConnected(false);
     setUserName(null);
     showToast('Signed out', 'info');
